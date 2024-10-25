@@ -1,0 +1,14 @@
+---
+- name: Configure exec-timeout to 0 on all devices
+  hosts: routers,switches
+  gather_facts: no
+
+  tasks:
+    - name: Set exec-timeout to 0
+      ios_config:
+        lines:
+          - line vty 0 4
+          - exec-timeout 0 0
+          - exit
+        save_when: modified
+

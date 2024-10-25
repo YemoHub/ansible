@@ -1,0 +1,13 @@
+---
+- name: Delete ntp server on all devices
+  hosts: routers,switches
+  gather_facts: no
+
+  tasks:
+    - name: Delete ntp server
+      ios_config:
+        lines:
+          - no ntp server pnpntpserver.localdomain
+          - exit
+        save_when: modified
+

@@ -1,0 +1,13 @@
+---
+- name: Configure static IP addresses on eth0/0
+  hosts: routers,switches
+  gather_facts: no
+
+  tasks:
+    - name: Configure IP address on eth0/0
+      ios_config:
+        lines:
+          - interface eth0/0
+          - ip address {{ interface_ip }} 255.255.255.0
+          - no shutdown
+        save_when: modified
