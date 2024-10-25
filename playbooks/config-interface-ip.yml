@@ -1,0 +1,132 @@
+---
+- name: Configure specific interfaces on ISP routers
+  hosts:
+    - ISP-RTR-A
+    - ISP-RTR-B
+  gather_facts: no
+  tasks:
+    - name: Configure interfaces for ISP-RTR-A
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Ethernet0/1
+            ipv4:
+              - address: '78.23.91.1/30'
+                secondary: false
+          - name: Ethernet0/2
+            ipv4:
+              - address: '78.23.91.13/30'
+                secondary: false
+          - name: Ethernet0/3
+            ipv4:
+              - address: '78.23.91.5/30'
+                secondary: false
+      when: inventory_hostname == 'ISP-RTR-A'
+
+    - name: Configure interfaces for ISP-RTR-B
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Ethernet0/1
+            ipv4:
+              - address: '78.23.91.2/30'
+                secondary: false
+          - name: Ethernet0/2
+            ipv4:
+              - address: '78.23.91.17/30'
+                secondary: false
+          - name: Ethernet0/3
+            ipv4:
+              - address: '78.23.91.9/30'
+                secondary: false
+      when: inventory_hostname == 'ISP-RTR-B'
+
+    - name: Save configuration on all ISP routers
+      cisco.ios.ios_config:
+        save_when: modified  # 상태가 변경된 경우에만 저장
+
+- name: Configure specific interfaces on CORE routers
+  hosts: 
+    - CORE-RTR-A
+    - CORE-RTR-B
+  gather_facts: no
+  tasks:
+    - name: Configure interfaces for CORE-RTR-A
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Ethernet0/1
+            ipv4:
+              - address: '10.11.0.1/30'
+                secondary: false
+          - name: Ethernet0/2
+            ipv4:
+              - address: '78.23.91.14/30'
+                secondary: false
+          - name: Ethernet0/3
+            ipv4:
+              - address: '78.23.91.10/30'
+                secondary: false
+          - name: Ethernet1/0
+            ipv4:
+              - address: '10.11.0.9/30'
+                secondary: false
+      when: inventory_hostname == 'CORE-RTR-A'
+
+    - name: Configure interfaces for CORE-RTR-B
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Ethernet0/1
+            ipv4:
+              - address: '10.11.0.2/30'
+                secondary: false
+          - name: Ethernet0/2
+            ipv4:
+              - address: '78.23.91.18/30'
+                secondary: false
+          - name: Ethernet0/3
+            ipv4:
+              - address: '78.23.91.6/30'
+                secondary: false
+          - name: Ethernet1/0
+            ipv4:
+              - address: '10.11.0.5/30'
+                secondary: false
+      when: inventory_hostname == 'CORE-RTR-B'
+
+    - name: Save configuration on all CORE routers
+      cisco.ios.ios_config:
+        save_when: modified  # 상태가 변경된 경우에만 저장
+
+- name: Configure specific interfaces on CORE switches
+  hosts:
+    - CORE-SW-A
+    - CORE-SW-B
+  gather_facts: no
+  tasks:
+    - name: Convert Ethernet1/0 to routed port for CORE-SW-A
+      when: inventory_hostname == 'CORE-SW-A'
+      cisco.ios.ios_command:
+        commands:
+          - enable
+          - configure terminal
+          - interface Ethernet1/0
+          - no switchport
+          - ip address 10.11.0.10 255.255.255.252
+          - no shutdown
+          - exit
+          - exit
+
+    - name: Convert Ethernet1/0 to routed port for CORE-SW-B
+      when: inventory_hostname == 'CORE-SW-B'
+      cisco.ios.ios_command:
+        commands:
+          - enable
+          - configure terminal
+          - interface Ethernet1/0
+          - no switchport
+          - ip address 10.11.0.6 255.255.255.252
+          - no shutdown
+          - exit
+          - exit
+
+    - name: Save configuration on all CORE switches
+      cisco.ios.ios_config:
+        save_when: modified  # 상태가 변경된 경우에만 저장
